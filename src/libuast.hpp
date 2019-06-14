@@ -58,6 +58,15 @@ namespace uast {
         virtual T node() = 0;
     };
 
+    // NodeHash is a hash of a node subtree.
+    struct NodeHash {
+        // The data are a cryptographic-quality fingerprint of the tree structure.
+        // The specific algorithm is not specified and may change across library versions.
+        // Clients may compare hash values for equality to match equivalent nodes, but cannot
+        // recompute hash values directly, as the input depends on details of serialization.
+        uint8_t data[UAST_HASH_SIZE];
+    };
+
     // Context is a common interface implemented by all UAST contexts.
     template<class T> class Context {
     public:
@@ -75,6 +84,7 @@ namespace uast {
 
         virtual Iterator<T>* Filter(T root, std::string query) = 0;
         virtual Iterator<T>* Iterate(T root, TreeOrder order) = 0;
+        virtual NodeHash Hash(T root, HashFlags flags) = 0;
     };
 
     // NodeCreator is an interface that creates new UAST nodes.
@@ -351,6 +361,11 @@ namespace uast {
             CheckError();
             return new RawIterator(it);
         }
+        NodeHash Hash(NodeHandle root, HashFlags flags) {
+            NodeHash h;
+            UastHash(ctx, root, (void*)&h, flags);
+            return h;
+        }
     };
 
     // PtrIterator is an iterator that casts NodeHandle directly to pointer type T.
@@ -413,6 +428,9 @@ namespace uast {
             auto raw = ctx->Iterate(ToHandle(root), order);
             auto it = new PtrIterator<T>(raw, true);
             return it;
+        }
+        NodeHash Hash(T root, HashFlags flags) {
+            return ctx->Hash(ToHandle(root), flags);
         }
         void CheckError(){
             ctx->CheckError();

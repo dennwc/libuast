@@ -90,7 +90,9 @@ typedef struct UastIterator {
 
 typedef enum { UAST_BINARY = 0, UAST_YAML = 1 } UastFormat;
 
+// HashFlags is a bit-field with different flags which controls node hashing.
 typedef enum {
+    HASH_ALL = 0x0,
     HASH_NO_POS = 0x1,
 } HashFlags;
 

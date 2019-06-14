@@ -28,6 +28,7 @@ int main() {
 
   // add the tests to the suite
   ADD_TEST(suite, "test of RoleNameForId()", TestRoleNameForId);
+  ADD_TEST(suite, "test node hash", TestNodeHash);
   ADD_TEST(suite, "test of UastFilter() pointers", TestUastFilterPointers);
   ADD_TEST(suite, "test iteration (preorder)", TestUastIteratorPreOrder);
   ADD_TEST(suite, "test of UastFilter() counting", TestUastFilterCount);

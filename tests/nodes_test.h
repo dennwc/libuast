@@ -642,6 +642,36 @@ void TestNodeFindError() {
   UastFree(ctx);
 }
 
+void TestNodeHash() {
+  Uast *ctx = NewUastMock();
+  Node* module = newObject("Module");
+  Node* child = newObject("Child");
+  module->SetChild("field", child);
+
+  unsigned char hash[UAST_HASH_SIZE];
+  // This value must be updated if the algorithm for structural hashing is changed,
+  // or if the tree structure for the test module changes in a way that modifies the
+  // structural hash. To update it, copy the actual value from the test failure and
+  // update this array.
+  unsigned char exp[UAST_HASH_SIZE] = {
+    0xe6, 0xd2, 0x53, 0xe1, 0x26, 0x0a, 0xaa, 0xa9,
+    0x37, 0xcc, 0xfc, 0x42, 0x0f, 0x52, 0x65, 0x48,
+    0x1d, 0x59, 0x18, 0xce, 0x01, 0xad, 0xda, 0xa2,
+    0x82, 0x4c, 0x74, 0x77, 0xae, 0xa1, 0x26, 0xb5};
+  UastHash(ctx, NodeHandle(module), (void*)hash, HASH_ALL);
+  bool ok = memcmp(hash, exp, UAST_HASH_SIZE) == 0;
+  if (!ok) {
+    printf("unexpected hash value:\n");
+    for (int i = 0; i < UAST_HASH_SIZE; i++) {
+      printf("0x%02x, ", (unsigned char)hash[i]);
+      if (i%8 == 7) printf("\n");
+    }
+  }
+  CU_ASSERT_FATAL(ok);
+
+  UastFree(ctx);
+}
+
 void TestEmptyResult() {
   Uast *ctx = NewUastMock();
   Node* module = newObject("Module");
